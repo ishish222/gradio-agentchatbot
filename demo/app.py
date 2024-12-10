@@ -1,6 +1,6 @@
 import gradio as gr
-from transformers import load_tool, ReactCodeAgent, HfEngine, Tool
-from gradio_agentchatbot import (
+from transformers import load_tool, ReactCodeAgent, HfApiEngine, Tool
+from gradio_agentchatbot_5 import (
     AgentChatbot,
     stream_from_transformers_agent,
     ChatMessage,
@@ -21,7 +21,7 @@ image_generation_tool = load_tool("m-ric/text-to-image")
 
 search_tool = Tool.from_langchain(load_tools(["serpapi"])[0])
 
-llm_engine = HfEngine("meta-llama/Meta-Llama-3-70B-Instruct")
+llm_engine = HfApiEngine("meta-llama/Meta-Llama-3-70B-Instruct")
 # Initialize the agent with both tools
 agent = ReactCodeAgent(
     tools=[image_generation_tool, search_tool], llm_engine=llm_engine
