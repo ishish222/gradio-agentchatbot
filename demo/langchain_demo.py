@@ -1,5 +1,6 @@
 from langchain import hub
-from langchain.agents import AgentExecutor, create_openai_tools_agent, load_tools
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_community.agent_toolkits.load_tools import load_tools
 
 from langchain_openai import ChatOpenAI
 

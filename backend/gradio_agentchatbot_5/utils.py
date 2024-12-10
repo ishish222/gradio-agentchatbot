@@ -1,9 +1,6 @@
-from transformers.agents import Agent, agent_types
 from pydantic import Field
 from gradio.data_classes import GradioModel, FileData, GradioRootModel
 from typing import Literal, List, Generator, Optional, Union
-from threading import Thread
-import time
 
 
 class ThoughtMetadata(GradioModel):
@@ -58,39 +55,3 @@ def pull_message(step_log: dict):
             thought=True,
             thought_metadata=ThoughtMetadata(error=True),
         )
-
-
-def stream_from_transformers_agent(
-    agent: Agent, prompt: str
-) -> Generator[ChatMessage, None, None]:
-    """Runs an agent with the given prompt and streams the messages from the agent as ChatMessages."""
-
-    class Output:
-        output: agent_types.AgentType | str = None
-
-    for step_log in agent.run(prompt, stream=True):
-        if isinstance(step_log, dict):
-            for message in pull_message(step_log):
-                yield message
-    
-    Output.output = step_log
-    if isinstance(Output.output, agent_types.AgentText):
-        yield ChatMessage(
-            role="assistant", content=f"**Final answer:**\n```\n{Output.output.to_string()}\n```", thought=True
-        )
-    elif isinstance(Output.output, agent_types.AgentImage):
-        yield ChatFileMessage(
-            role="assistant",
-            file=FileData(path=Output.output.to_string(), mime_type="image/png"),
-            content="",
-            thought=True,
-        )
-    elif isinstance(Output.output, agent_types.AgentAudio):
-        yield ChatFileMessage(
-            role="assistant",
-            file=FileData(path=Output.output.to_string(), mime_type="audio/wav"),
-            content="",
-            thought=True,
-        )
-    else:
-        return ChatMessage(role="assistant", content=Output.output, thought=True)
