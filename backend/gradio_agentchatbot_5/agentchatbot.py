@@ -152,17 +152,20 @@ class AgentChatbot(Component):
         # extract file path from message
         new_messages = []
         for word in chat_message.content.split(" "):
-            if (filepath := Path(word)).exists() and filepath.is_file():
-                filepath = move_resource_to_block_cache(filepath, block=self)
-                mime_type = client_utils.get_mimetype(filepath)
-                new_messages.append(
-                    ChatFileMessage(
-                        role=chat_message.role,
-                        thought=chat_message.thought,
-                        thought_metadata=chat_message.thought_metadata,
-                        file=FileData(path=filepath, mime_type=mime_type),
+            try:
+                if (filepath := Path(word)).exists() and filepath.is_file():
+                    filepath = move_resource_to_block_cache(filepath, block=self)
+                    mime_type = client_utils.get_mimetype(filepath)
+                    new_messages.append(
+                        ChatFileMessage(
+                            role=chat_message.role,
+                            thought=chat_message.thought,
+                            thought_metadata=chat_message.thought_metadata,
+                            file=FileData(path=filepath, mime_type=mime_type),
+                        )
                     )
-                )
+            except Exception:
+                pass
 
         return [chat_message, *new_messages]
 
