@@ -55,6 +55,7 @@ class AgentChatbot(Component):
         likeable: bool = False,
         layout: Literal["panel", "bubble"] | None = None,
         placeholder: str | None = None,
+        parse_words: bool = False,
     ):
         """
         Parameters:
@@ -83,6 +84,7 @@ class AgentChatbot(Component):
             likeable: Whether the chat messages display a like or dislike button. Set automatically by the .like method but has to be present in the signature for it to show up in the config.
             layout: If "panel", will display the chatbot in a llm style layout. If "bubble", will display the chatbot with message bubbles, with the user and bot messages on alterating sides. Will default to "bubble".
             placeholder: a placeholder message to display in the chatbot when it is empty. Centered vertically and horizontally in the AgentChatbot. Supports Markdown and HTML. If None, no placeholder is displayed.
+            parse_words: If True, will parse the words in the chatbot for potential file paths.
         """
         self.likeable = likeable
         self.height = height
@@ -101,6 +103,8 @@ class AgentChatbot(Component):
         self.bubble_full_width = bubble_full_width
         self.line_breaks = line_breaks
         self.layout = layout
+        self.parse_words = parse_words
+        
         super().__init__(
             label=label,
             every=every,
@@ -151,21 +155,24 @@ class AgentChatbot(Component):
 
         # extract file path from message
         new_messages = []
-        for word in chat_message.content.split(" "):
-            try:
-                if (filepath := Path(word)).exists() and filepath.is_file():
-                    filepath = move_resource_to_block_cache(filepath, block=self)
-                    mime_type = client_utils.get_mimetype(filepath)
-                    new_messages.append(
-                        ChatFileMessage(
-                            role=chat_message.role,
-                            thought=chat_message.thought,
-                            thought_metadata=chat_message.thought_metadata,
-                            file=FileData(path=filepath, mime_type=mime_type),
+
+        if self.parse_words:
+            for word in chat_message.content.split(" "):
+                try:
+
+                    if (filepath := Path(word)).exists() and filepath.is_file():
+                        filepath = move_resource_to_block_cache(filepath, block=self)
+                        mime_type = client_utils.get_mimetype(filepath)
+                        new_messages.append(
+                            ChatFileMessage(
+                                role=chat_message.role,
+                                thought=chat_message.thought,
+                                thought_metadata=chat_message.thought_metadata,
+                                file=FileData(path=filepath, mime_type=mime_type),
+                            )
                         )
-                    )
-            except Exception:
-                pass
+                except Exception:
+                    pass
 
         return [chat_message, *new_messages]
 
