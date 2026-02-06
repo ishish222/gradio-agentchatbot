@@ -40,9 +40,17 @@
 	export let i18n: I18nFormatter;
 	export let layout: "bubble" | "panel" = "bubble";
 	export let placeholder: string | null = null;
+	export let autoscroll_enabled: boolean = true;
 
 	let div: HTMLDivElement;
 	let autoscroll: boolean;
+
+	function toggleAutoscroll(): void {
+		autoscroll_enabled = !autoscroll_enabled;
+		if (autoscroll_enabled && div) {
+			div.scrollTo(0, div.scrollHeight);
+		}
+	}
 
 	$: adjust_text_size = () => {
 		let style = getComputedStyle(document.body);
@@ -80,7 +88,7 @@
 
 	beforeUpdate(() => {
 		autoscroll =
-			div && div.offsetHeight + div.scrollTop > div.scrollHeight - 100;
+			autoscroll_enabled && div && div.offsetHeight + div.scrollTop > div.scrollHeight - 100;
 	});
 
 	const scroll = (): void => {
@@ -89,7 +97,7 @@
 		}
 	};
 	afterUpdate(() => {
-		if (autoscroll) {
+		if (autoscroll_enabled && autoscroll) {
 			scroll();
 			div.querySelectorAll("img").forEach((n) => {
 				n.addEventListener("load", () => {
@@ -159,6 +167,21 @@
 		}
 
 </script>
+
+<div class="autoscroll-toggle">
+	<button
+		class="autoscroll-button"
+		class:active={autoscroll_enabled}
+		on:click={toggleAutoscroll}
+		title={autoscroll_enabled ? "Disable autoscroll" : "Enable autoscroll"}
+		aria-label={autoscroll_enabled ? "Disable autoscroll" : "Enable autoscroll"}
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<polyline points="7 13 12 18 17 13"></polyline>
+			<polyline points="7 6 12 11 17 6"></polyline>
+		</svg>
+	</button>
+</div>
 
 {#if show_share_button && value !== null && value.length > 0}
 	<div class="share-button">
@@ -344,6 +367,51 @@
 </div>
 
 <style>
+	.autoscroll-toggle {
+		position: absolute;
+		top: 4px;
+		right: 36px;
+		z-index: 10;
+	}
+
+	.autoscroll-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border: none;
+		border-radius: var(--radius-sm);
+		background: var(--background-fill-secondary);
+		color: var(--body-text-color-subdued);
+		cursor: pointer;
+		transition: all 0.2s ease;
+		opacity: 0.7;
+	}
+
+	.autoscroll-button:hover {
+		opacity: 1;
+		background: var(--background-fill-primary);
+	}
+
+	.autoscroll-button.active {
+		color: var(--color-accent);
+		opacity: 1;
+	}
+
+	.autoscroll-button.active svg {
+		animation: bounce 1s ease infinite;
+	}
+
+	@keyframes bounce {
+		0%, 100% {
+			transform: translateY(0);
+		}
+		50% {
+			transform: translateY(2px);
+		}
+	}
+
 	.placeholder-container {
 		display: flex;
 		justify-content: center;
