@@ -56,6 +56,7 @@ class AgentChatbot(Component):
         layout: Literal["panel", "bubble"] | None = None,
         placeholder: str | None = None,
         parse_words: bool = False,
+        autoscroll_enabled: bool = True,
     ):
         """
         Parameters:
@@ -85,6 +86,7 @@ class AgentChatbot(Component):
             layout: If "panel", will display the chatbot in a llm style layout. If "bubble", will display the chatbot with message bubbles, with the user and bot messages on alterating sides. Will default to "bubble".
             placeholder: a placeholder message to display in the chatbot when it is empty. Centered vertically and horizontally in the AgentChatbot. Supports Markdown and HTML. If None, no placeholder is displayed.
             parse_words: If True, will parse the words in the chatbot for potential file paths.
+            autoscroll_enabled: If True (default), the chatbot will automatically scroll to the bottom when new messages arrive. If False, auto-scrolling is disabled.
         """
         self.likeable = likeable
         self.height = height
@@ -104,6 +106,7 @@ class AgentChatbot(Component):
         self.line_breaks = line_breaks
         self.layout = layout
         self.parse_words = parse_words
+        self.autoscroll_enabled = autoscroll_enabled
         
         super().__init__(
             label=label,
