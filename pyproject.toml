@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gradio_agentchatbot_5"
-version = "0.0.11"
+version = "0.0.13"
 description = "Chat with agents 🤖 and see the tools they use 🛠️"
 readme = "README.md"
 license = "apache-2.0"

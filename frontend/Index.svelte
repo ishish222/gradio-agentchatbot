@@ -70,6 +70,7 @@
 	export let loading_status: LoadingStatus | undefined = undefined;
 	export let height = 400;
 	export let placeholder: string | null = null;
+	export let autoscroll_enabled: boolean = true;
 </script>
 
 <Block
@@ -122,8 +123,9 @@
 			{sanitize_html}
 			{bubble_full_width}
 			{line_breaks}
-			{layout}
+		{layout}
 			{placeholder}
+			{autoscroll_enabled}
 		/>
 	</div>
 </Block>
